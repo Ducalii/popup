@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ducali · Pop-up orders</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* the look of Diana's order page: ivory paper, midnight ink, gold labels, Baskerville for names and prices */
+:root{
+  --bg:#F8F5ED; --fg:#14243B; --card:#FFFFFF; --muted:#5C6573; --gold:#AA8B53; --gold-soft:#EFE6D2; --line:#DCD3BE;
+  --ok:#3F6B4C; --ok-soft:#E3EEE5; --warn:#A5522B; --warn-soft:#F6E6DC; --field:#FFFFFF; --shade:#F1ECDF;
+  --display:'Libre Baskerville',Baskerville,'Times New Roman',serif;
+  --ui:'Alegreya Sans','Gill Sans','Helvetica Neue',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--ui);font-size:17px;line-height:1.4;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 120px}
+.wrap{max-width:640px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance}
+header{text-align:center;padding:34px 0 18px}
+header .brand{font-family:var(--display);font-size:38px;letter-spacing:.02em}
+header .eyebrow{color:var(--gold);font-size:13px;letter-spacing:.14em;text-transform:uppercase;margin-top:10px;font-weight:500}
+header p{color:var(--muted);margin:14px auto 0;max-width:34em;font-size:16px}
+.notes{background:var(--shade);border-radius:10px;padding:12px 16px;margin:18px 0 6px;font-size:15px;color:var(--muted)}
+.notes summary{cursor:pointer;color:var(--fg);font-weight:500;list-style:none}
+.notes summary::-webkit-details-marker{display:none}
+.notes ul{margin:8px 0 0;padding-left:18px}
+.notes li{margin:4px 0}
+section{margin-top:28px}
+section h2{font-size:14px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;font-family:var(--ui);font-weight:500;
+  padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.piece{display:grid;grid-template-columns:1fr auto;gap:4px 14px;padding:14px 0;border-bottom:1px solid var(--line);align-items:start}
+.piece .nm{font-family:var(--display);font-size:17px;line-height:1.25}
+.piece .ds{color:var(--muted);font-size:15px;grid-column:1}
+.piece .pr{text-align:right;font-family:var(--display);font-size:18px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.piece .pr small{display:block;font-family:var(--ui);color:var(--muted);font-size:13px;text-decoration:line-through;margin-top:2px}
+.piece .add{grid-column:2;justify-self:end;background:var(--fg);color:#fff;border:0;border-radius:999px;padding:8px 16px;font:500 15px var(--ui);cursor:pointer}
+.piece .add:focus-visible,.btn:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.lines{grid-column:1/-1;display:grid;gap:10px}
+.ln{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:10px}
+.ln .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.ln .top b{font-family:var(--display);font-weight:400;font-size:16px}
+.ln .sum{font-family:var(--display);font-variant-numeric:tabular-nums}
+.ln .ctl{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ln label{display:grid;gap:4px;font-size:13px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.ln label.full{grid-column:1/-1}
+select,input[type=text],input[type=tel],input[type=email],textarea{width:100%;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--fg);
+  font:16px var(--ui);padding:10px 12px;min-width:0}
+textarea{min-height:84px;resize:vertical}
+.qty{display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:8px;background:var(--field);height:42px}
+.qty button{width:42px;height:40px;border:0;background:transparent;font:20px var(--ui);color:var(--fg);cursor:pointer}
+.qty output{flex:1;text-align:center;font-family:var(--display);font-size:17px}
+.rm{background:transparent;border:0;color:var(--warn);font:15px var(--ui);cursor:pointer;justify-self:start;padding:0}
+.hint{font-size:13px;color:var(--muted);text-transform:none;letter-spacing:0}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
+  padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));z-index:5}
+.bar .in{max-width:640px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.bar .tot{font-family:var(--display);font-size:19px;font-variant-numeric:tabular-nums}
+.bar .tot small{display:block;font:14px var(--ui);color:var(--muted)}
+.btn{background:var(--fg);color:#fff;border:0;border-radius:999px;padding:12px 22px;font:500 16px var(--ui);cursor:pointer}
+.btn[disabled]{opacity:.45;cursor:default}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+/* the review and send panel */
+.panel{position:fixed;inset:0;background:var(--bg);z-index:10;overflow:auto;padding:0 max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+.panel .wrap{padding-top:env(safe-area-inset-top,0px)}
+.panel h2{font-size:26px;margin:28px 0 6px}
+.panel .back{margin-top:18px}
+.recap{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 14px;margin:14px 0}
+.recap .r{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}
+.recap .r:last-child{border-bottom:0}
+.recap .r span:last-child{font-family:var(--display);font-variant-numeric:tabular-nums;white-space:nowrap}
+.recap .r.t{font-weight:500;font-size:16px}
+.recap .r small{display:block;color:var(--muted)}
+.fields{display:grid;gap:12px;margin-top:16px}
+.fields label{display:grid;gap:4px;font-size:13px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.pay{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pay label{border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;text-transform:none;letter-spacing:0;font-size:15px;color:var(--fg);cursor:pointer;display:block}
+.pay input{position:absolute;opacity:0}
+.pay label:has(input:checked){border-color:var(--gold);background:var(--gold-soft)}
+.err{color:var(--warn);background:var(--warn-soft);border-radius:8px;padding:10px 12px;font-size:15px}
+.done{text-align:center;padding:60px 0}
+.done h2{font-size:30px}
+.done p{color:var(--muted);max-width:30em;margin:14px auto 0}
+.small{font-size:14px;color:var(--muted);margin-top:14px}
+@media (max-width:420px){ .ln .ctl{grid-template-columns:1fr} .pay{grid-template-columns:1fr} }
+@media (prefers-reduced-motion:no-preference){ .ln{animation:in .18s ease-out} @keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}} }
+</style>
+</head>
+<body>
+<div class="wrap" id="main">
+  <header>
+    <div class="brand">Ducali</div>
+    <div class="eyebrow">Pop-up at Christel's · November 4 · Friends &amp; family</div>
+    <p>20% off the website price on everything ordered at the pop-up. Choose your pieces, tell us the colours and the letters, and Diana confirms your order, the delivery date and the payment within a day.</p>
+    <details class="notes"><summary>The small print</summary><ul><li>Made in Italy, one piece at a time, so no two are quite the same.</li><li>Where a piece offers an initial or a name, it is included in the price.</li><li>Pieces are made to order and paid in full when ordered. We confirm the delivery date with each order.</li><li>A piece embroidered with a name or an initial cannot be returned.</li><li>Prices in US dollars. Nothing is added at the table today.</li></ul></details>
+  </header>
+  <div id="sections"></div>
+</div>
+<div class="bar" id="bar">
+  <div class="in">
+    <div class="tot"><span id="total">$0</span><small id="count">Nothing chosen yet</small></div>
+    <button class="btn" id="review" disabled>Review &amp; send</button>
+  </div>
+</div>
+<div class="panel" id="panel" hidden>
+  <div class="wrap">
+    <button class="btn ghost back" id="back">← Back to the pieces</button>
+    <h2>Your order</h2>
+    <div class="recap" id="recap"></div>
+    <form id="form" novalidate>
+      <div class="fields">
+        <label>Your name<input type="text" id="name" autocomplete="name" required></label>
+        <label>Phone or WhatsApp<input type="tel" id="phone" autocomplete="tel" required><span class="hint">So Diana can confirm your order and the payment.</span></label>
+        <label>Email, if you prefer to be written to<input type="email" id="email" autocomplete="email"></label>
+        <div>
+          <div style="font-size:13px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">How would you like to pay?</div>
+          <div class="pay">
+            <label><input type="radio" name="pay" value="Venmo">Venmo</label>
+            <label><input type="radio" name="pay" value="Zelle">Zelle</label>
+            <label><input type="radio" name="pay" value="Cash, at the pop-up">Cash at the pop-up</label>
+          </div>
+          <div class="hint" style="margin-top:6px">Pieces are paid in full when ordered. Diana sends the payment request with her confirmation. Nothing is added: no tax, no fees.</div>
+        </div>
+        <label>Anything else?<textarea id="notes" placeholder="A question, a delivery wish, a gift note."></textarea></label>
+        <div class="err" id="err" hidden></div>
+        <button class="btn" type="submit" id="send">Send my order</button>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="panel" id="thanks" hidden>
+  <div class="wrap done">
+    <div class="brand" style="font-family:var(--display);font-size:34px">Ducali</div>
+    <h2 id="thanks-h">Thank you</h2>
+    <p>Diana will confirm your order, the delivery date and the payment within a day. Nothing is charged until she does.</p>
+    <p class="small" id="thanks-sum"></p>
+  </div>
+</div>
+<script>
+const DATA = [{"title": "Le Pochette", "pieces": [{"name": "La pochette · Velluto", "desc": "Cotton velvet, 8.5 × 6 in, with your initial and a tassel. Eleven colors.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 85, "today": 68, "choice": "La pochette · Velluto — $68 ($85 on the website)"}], "option": {"label": "Velvet", "values": ["Mattone", "Rosa Antico", "Senape", "Verde", "Blu Avio", "Aqua", "Petrolio", "Blu Profondo", "Blu Notte", "Rosso Veneziano", "Verde Bosco"]}, "fringe": null, "threads": ["Ecrù", "Panna", "Giallo Oro", "Zucca", "Bruciato", "Ruggine", "Avio", "Grandine", "Turchese", "Petrolio", "Acqua di Mare", "Verde Acqua", "Smeraldo", "Verde XF", "Verde Natura", "Pistacchio", "Rosa Cipolla", "Fuxia Scuro", "Rosso", "Bordeaux", "Avio Scuro"], "letter": {"label": "Initial", "max": 1, "note": "One letter.", "optional": false}}, {"name": "La pochette · Velluto media", "desc": "Cotton velvet, 9.5 × 7 in, with an ivory tassel and your initial. Four colors.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 90, "today": 72, "choice": "La pochette · Velluto media — $72 ($90 on the website)"}], "option": {"label": "Velvet", "values": ["Burgundy", "Super Aqua", "Super Petrol", "Apple Green"]}, "fringe": null, "threads": ["Ecrù", "Panna", "Giallo Oro", "Zucca", "Bruciato", "Ruggine", "Avio", "Grandine", "Turchese", "Petrolio", "Acqua di Mare", "Verde Acqua", "Smeraldo", "Verde XF", "Verde Natura", "Pistacchio", "Rosa Cipolla", "Fuxia Scuro", "Rosso", "Bordeaux", "Avio Scuro"], "letter": {"label": "Initial", "max": 1, "note": "One letter.", "optional": false}}, {"name": "La pochette · Velluto grande", "desc": "Cotton velvet, 12.5 × 9 in, with your two-letter monogram. Eleven colors.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 100, "today": 80, "choice": "La pochette · Velluto grande — $80 ($100 on the website)"}], "option": {"label": "Velvet", "values": ["Mattone", "Rosa Antico", "Senape", "Verde", "Blu Avio", "Aqua", "Petrolio", "Blu Profondo", "Blu Notte", "Rosso Veneziano", "Verde Bosco"]}, "fringe": null, "threads": ["Ecrù", "Panna", "Giallo Oro", "Zucca", "Bruciato", "Ruggine", "Avio", "Grandine", "Turchese", "Petrolio", "Acqua di Mare", "Verde Acqua", "Smeraldo", "Verde XF", "Verde Natura", "Pistacchio", "Rosa Cipolla", "Fuxia Scuro", "Rosso", "Bordeaux", "Avio Scuro"], "letter": {"label": "Monogram", "max": 2, "note": "Two letters.", "optional": false}}, {"name": "La pochette · Lino", "desc": "Pure linen, 9.5 × 7 in, with an ivory tassel and your initial. Fifteen colors.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 72, "today": 58, "choice": "La pochette · Lino — $58 ($72 on the website)"}], "option": {"label": "Linen", "values": ["Giallo Lino", "Bianco Ottico", "Bianco Naturale", "Tiger", "Fior di Melo", "Fenicottero", "Astice", "Melograno", "Airone Bleu", "Marino", "Escape", "Lichen", "Pistacchio", "Ninfea", "Oliva"]}, "fringe": null, "threads": ["Ecrù", "Panna", "Giallo Oro", "Zucca", "Bruciato", "Ruggine", "Avio", "Grandine", "Turchese", "Petrolio", "Acqua di Mare", "Verde Acqua", "Smeraldo", "Verde XF", "Verde Natura", "Pistacchio", "Rosa Cipolla", "Fuxia Scuro", "Rosso", "Bordeaux", "Avio Scuro"], "letter": {"label": "Initial", "max": 1, "note": "One letter.", "optional": false}}, {"name": "La pochette · Winnie-the-Pooh", "desc": "Special edition in blue velvet with gold embroidery, a small numbered run.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 125, "today": 100, "choice": "La pochette · Winnie-the-Pooh — $100 ($125 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": null}, {"name": "Mini velvet coin purse", "desc": "Cotton velvet, with a zip and an embroidered initial.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 50, "today": 40, "choice": "Mini velvet coin purse — $40 ($50 on the website)"}], "option": {"label": "Velvet", "values": ["Mattone", "Rosa Antico", "Senape", "Verde", "Blu Avio", "Aqua", "Petrolio", "Blu Profondo", "Blu Notte", "Rosso Veneziano", "Verde Bosco"]}, "fringe": null, "threads": ["Ecrù", "Panna", "Giallo Oro", "Zucca", "Bruciato", "Ruggine", "Avio", "Grandine", "Turchese", "Petrolio", "Acqua di Mare", "Verde Acqua", "Smeraldo", "Verde XF", "Verde Natura", "Pistacchio", "Rosa Cipolla", "Fuxia Scuro", "Rosso", "Bordeaux", "Avio Scuro"], "letter": {"label": "Initial", "max": 1, "note": "One letter.", "optional": false}}, {"name": "Flat velvet coin purse", "desc": "Cotton velvet, flat, with a zip and an embroidered initial.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 60, "today": 48, "choice": "Flat velvet coin purse — $48 ($60 on the website)"}], "option": {"label": "Velvet", "values": ["Mattone", "Rosa Antico", "Senape", "Verde", "Blu Avio", "Aqua", "Petrolio", "Blu Profondo", "Blu Notte", "Rosso Veneziano", "Verde Bosco"]}, "fringe": null, "threads": ["Ecrù", "Panna", "Giallo Oro", "Zucca", "Bruciato", "Ruggine", "Avio", "Grandine", "Turchese", "Petrolio", "Acqua di Mare", "Verde Acqua", "Smeraldo", "Verde XF", "Verde Natura", "Pistacchio", "Rosa Cipolla", "Fuxia Scuro", "Rosso", "Bordeaux", "Avio Scuro"], "letter": {"label": "Initial", "max": 1, "note": "One letter.", "optional": false}}], "tick": 433655091, "details": 993664146}, {"title": "The Table", "pieces": [{"name": "Breakfast set with blanket stitch", "desc": "A padded gingham placemat, a linen-blend napkin and a coaster for one place, finished with blanket stitch. Sold for four or six places.", "note": "Price per place. Order 4 or 6 places; the quantity is the number of places.", "label_of": "", "ages": false, "variants": [{"label": "", "list": 110, "today": 88, "choice": "Breakfast set with blanket stitch — $88 ($110 on the website)"}], "option": {"label": "Color", "values": []}, "fringe": null, "threads": null, "letter": null}, {"name": "Scalloped linen napkins", "desc": "Pure linen, 18 × 18 in, with a colored scalloped edge. Seven color combinations.", "note": "", "label_of": "Set", "ages": false, "variants": [{"label": "Set of 4", "list": 180, "today": 144, "choice": "Scalloped linen napkins · Set of 4 — $144 ($180 on the website)"}, {"label": "Set of 6", "list": 265, "today": 212, "choice": "Scalloped linen napkins · Set of 6 — $212 ($265 on the website)"}], "option": {"label": "Colors", "values": []}, "fringe": null, "threads": null, "letter": null}, {"name": "Scalloped linen coasters", "desc": "Pure linen, 4 in round, with a colored scalloped edge. Set of four.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 95, "today": 76, "choice": "Scalloped linen coasters — $76 ($95 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": null}, {"name": "Linen coasters with cord edge", "desc": "Pure linen, 4 in round, finished with a cord edge. Set of four.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 95, "today": 76, "choice": "Linen coasters with cord edge — $76 ($95 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": null}, {"name": "Cocktail napkins for the holidays", "desc": "Linen, 9 × 6.5 in, embroidered for Thanksgiving or Christmas. Six napkins in an embroidered linen pouch.", "note": "", "label_of": "Version", "ages": false, "variants": [{"label": "Thanksgiving", "list": 175, "today": 140, "choice": "Cocktail napkins for the holidays · Thanksgiving — $140 ($175 on the website)"}, {"label": "Christmas", "list": 175, "today": 140, "choice": "Cocktail napkins for the holidays · Christmas — $140 ($175 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": null}, {"name": "Linen napkins for the holidays", "desc": "Pure linen, 18 × 18 in, hemstitched and embroidered for Thanksgiving or Christmas. Set of six.", "note": "", "label_of": "Version", "ages": false, "variants": [{"label": "Thanksgiving", "list": 230, "today": 184, "choice": "Linen napkins for the holidays · Thanksgiving — $184 ($230 on the website)"}, {"label": "Christmas", "list": 230, "today": 184, "choice": "Linen napkins for the holidays · Christmas — $184 ($230 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": null}, {"name": "Linen table runner", "desc": "Pure linen, 108 × 18 in, hemstitched: plain, or embroidered for Christmas or Thanksgiving.", "note": "", "label_of": "Version", "ages": false, "variants": [{"label": "Plain", "list": 135, "today": 108, "choice": "Linen table runner · Plain — $108 ($135 on the website)"}, {"label": "Christmas", "list": 230, "today": 184, "choice": "Linen table runner · Christmas — $184 ($230 on the website)"}, {"label": "Thanksgiving", "list": 240, "today": 192, "choice": "Linen table runner · Thanksgiving — $192 ($240 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": null}, {"name": "Linen tray cover", "desc": "Pure linen, 12.5 × 17 in, hemstitched: plain, or embroidered for Christmas or Thanksgiving.", "note": "", "label_of": "Version", "ages": false, "variants": [{"label": "Plain", "list": 42, "today": 34, "choice": "Linen tray cover · Plain — $34 ($42 on the website)"}, {"label": "Christmas", "list": 95, "today": 76, "choice": "Linen tray cover · Christmas — $76 ($95 on the website)"}, {"label": "Thanksgiving", "list": 110, "today": 88, "choice": "Linen tray cover · Thanksgiving — $88 ($110 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": null}, {"name": "By the sea: cocktail napkins", "desc": "Six linen napkins embroidered with a sea motif and an initial, in an embroidered linen pochette.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 180, "today": 144, "choice": "By the sea: cocktail napkins — $144 ($180 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": {"label": "Initial", "max": 1, "note": "One letter.", "optional": false}}, {"name": "A table in celebration: party napkins", "desc": "Six hemstitched linen napkins embroidered for a birthday, Christmas or Thanksgiving, in an embroidered linen pochette.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 175, "today": 140, "choice": "A table in celebration: party napkins — $140 ($175 on the website)"}], "option": {"label": "Occasion", "values": ["Birthday", "Christmas", "Thanksgiving"]}, "fringe": null, "threads": null, "letter": null}], "tick": 1033040986, "details": 1463783862}, {"title": "Kids & Babies", "pieces": [{"name": "Embroidered bib", "desc": "Cream terry with a linen panel: a bee, a dragonfly, ladybugs or sardines, or a name on a green striped band.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 40, "today": 32, "choice": "Embroidered bib — $32 ($40 on the website)"}], "option": {"label": "Design", "values": ["Bee, Yellow Trim", "Dragonfly, Green Trim", "Ladybugs, Red Trim", "Sardines, Blue Trim", "Name, Green Stripe"]}, "fringe": null, "threads": null, "letter": {"label": "Name (name bib only)", "max": 12, "note": "Up to 12 letters, in gold cursive, on the name bib.", "optional": true}}, {"name": "Bib gift set", "desc": "Any bib with its own padded placemat: gingham to match the trim, or stripes for the name bib.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 85, "today": 68, "choice": "Bib gift set — $68 ($85 on the website)"}], "option": {"label": "Design", "values": ["Bee, Yellow Trim", "Dragonfly, Green Trim", "Ladybugs, Red Trim", "Sardines, Blue Trim", "Name, Green Stripe"]}, "fringe": null, "threads": null, "letter": {"label": "Name (name bib only)", "max": 12, "note": "Up to 12 letters, in gold cursive, on the name bib.", "optional": true}}, {"name": "Hooded baby towel", "desc": "Cotton terry, 30 × 30 in, with a hood at one corner. Four versions.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 100, "today": 80, "choice": "Hooded baby towel — $80 ($100 on the website)"}], "option": {"label": "Version", "values": ["Dusty Blue, Floral Trim", "Dusty Blue, Yellow Tufts", "Cream, Sage Linen Hood", "Cream, Sky Blue Linen Hood"]}, "fringe": null, "threads": null, "letter": {"label": "Initial (optional)", "max": 1, "note": "One letter, or leave empty.", "optional": true}}, {"name": "Scalloped linen cushion", "desc": "A name embroidered in cursive, 12 × 16 in, insert included. Three colors.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 175, "today": 140, "choice": "Scalloped linen cushion — $140 ($175 on the website)"}], "option": {"label": "Color", "values": ["Dahlia Pink", "Sage Green", "Dusty Teal"]}, "fringe": null, "threads": null, "letter": {"label": "Name", "max": 12, "note": "Up to 12 letters, embroidered in cursive.", "optional": false}}, {"name": "Crib sheet set", "desc": "White cotton fitted sheet, top sheet and pillowcase, 28 × 52 in; the top sheet with a band of openwork lace.", "note": "", "label_of": "Version", "ages": false, "variants": [{"label": "Sky blue, lace and scalloped edge", "list": 195, "today": 156, "choice": "Crib sheet set · Sky blue, lace and scalloped edge — $156 ($195 on the website)"}, {"label": "Pink, lace band", "list": 185, "today": 148, "choice": "Crib sheet set · Pink, lace band — $148 ($185 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": null}, {"name": "Terry robe with blanket stitch", "desc": "Hooded, in cream terry, the stitch in one of six thread colors, with an initial.", "note": "", "label_of": "Age", "ages": true, "variants": [{"label": "1–3", "list": 145, "today": 116, "choice": "Terry robe with blanket stitch · 1–3 — $116 ($145 on the website)"}, {"label": "3–5", "list": 155, "today": 124, "choice": "Terry robe with blanket stitch · 3–5 — $124 ($155 on the website)"}, {"label": "5–7", "list": 165, "today": 132, "choice": "Terry robe with blanket stitch · 5–7 — $132 ($165 on the website)"}, {"label": "8–10", "list": 170, "today": 136, "choice": "Terry robe with blanket stitch · 8–10 — $136 ($170 on the website)"}], "option": {"label": "Thread", "values": ["Yellow", "Antique Rose", "Fuchsia", "Green", "Bordeaux", "Turquoise"]}, "fringe": null, "threads": null, "letter": {"label": "Initial", "max": 1, "note": "One letter.", "optional": false}}, {"name": "Terry robe with pom-pom trim", "desc": "Hooded, in cream terry with a border of pom-poms in two colors, with an initial.", "note": "", "label_of": "Age", "ages": true, "variants": [{"label": "1–3", "list": 155, "today": 124, "choice": "Terry robe with pom-pom trim · 1–3 — $124 ($155 on the website)"}, {"label": "3–5", "list": 170, "today": 136, "choice": "Terry robe with pom-pom trim · 3–5 — $136 ($170 on the website)"}, {"label": "5–7", "list": 185, "today": 148, "choice": "Terry robe with pom-pom trim · 5–7 — $148 ($185 on the website)"}, {"label": "8–10", "list": 195, "today": 156, "choice": "Terry robe with pom-pom trim · 8–10 — $156 ($195 on the website)"}], "option": {"label": "Pom-poms", "values": ["Antique Rose", "Green"]}, "fringe": null, "threads": null, "letter": {"label": "Initial", "max": 1, "note": "One letter.", "optional": false}}, {"name": "Terry beach poncho", "desc": "Hooded, in cream terry with a striped trim and side ties, with an initial.", "note": "", "label_of": "Age", "ages": true, "variants": [{"label": "1–3", "list": 120, "today": 96, "choice": "Terry beach poncho · 1–3 — $96 ($120 on the website)"}, {"label": "3–5", "list": 135, "today": 108, "choice": "Terry beach poncho · 3–5 — $108 ($135 on the website)"}, {"label": "5–7", "list": 145, "today": 116, "choice": "Terry beach poncho · 5–7 — $116 ($145 on the website)"}, {"label": "8–10", "list": 160, "today": 128, "choice": "Terry beach poncho · 8–10 — $128 ($160 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": {"label": "Initial (optional)", "max": 1, "note": "One letter, or leave empty.", "optional": true}}, {"name": "Linen beach poncho", "desc": "Hooded, in washed linen with sage or sky blue stripes, with an initial.", "note": "", "label_of": "Age", "ages": true, "variants": [{"label": "1–3", "list": 125, "today": 100, "choice": "Linen beach poncho · 1–3 — $100 ($125 on the website)"}, {"label": "3–5", "list": 140, "today": 112, "choice": "Linen beach poncho · 3–5 — $112 ($140 on the website)"}, {"label": "5–7", "list": 155, "today": 124, "choice": "Linen beach poncho · 5–7 — $124 ($155 on the website)"}, {"label": "8–10", "list": 165, "today": 132, "choice": "Linen beach poncho · 8–10 — $132 ($165 on the website)"}], "option": {"label": "Stripes", "values": ["Sage and Cream", "Sky Blue and Cream"]}, "fringe": null, "threads": null, "letter": {"label": "Initial (optional)", "max": 1, "note": "One letter, or leave empty.", "optional": true}}, {"name": "Honeycomb beach poncho", "desc": "Light striped cotton honeycomb in eight colors, with an initial.", "note": "", "label_of": "Age", "ages": true, "variants": [{"label": "1–3", "list": 140, "today": 112, "choice": "Honeycomb beach poncho · 1–3 — $112 ($140 on the website)"}, {"label": "3–5", "list": 155, "today": 124, "choice": "Honeycomb beach poncho · 3–5 — $124 ($155 on the website)"}, {"label": "5–7", "list": 170, "today": 136, "choice": "Honeycomb beach poncho · 5–7 — $136 ($170 on the website)"}, {"label": "8–10", "list": 185, "today": 148, "choice": "Honeycomb beach poncho · 8–10 — $148 ($185 on the website)"}], "option": {"label": "Color", "values": ["Sea Blue", "Bottle Green", "Deep Teal", "Olive", "Forest Green", "Dusty Rose", "Bordeaux", "Brick"]}, "fringe": null, "threads": null, "letter": {"label": "Initial (optional)", "max": 1, "note": "One letter, or leave empty.", "optional": true}}, {"name": "Honeycomb pouch, fine weave", "desc": "Zippered, in striped cotton honeycomb, eight colors, with a name or initials.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 125, "today": 100, "choice": "Honeycomb pouch, fine weave — $100 ($125 on the website)"}], "option": {"label": "Color", "values": ["Sea Blue", "Bottle Green", "Deep Teal", "Olive", "Forest Green", "Dusty Rose", "Bordeaux", "Brick"]}, "fringe": null, "threads": null, "letter": {"label": "Name or initials", "max": 12, "note": "A name (up to 12 letters) or up to three initials.", "optional": false}}, {"name": "Honeycomb pouch, bold weave", "desc": "Zippered, in a wide honeycomb weave: blue, beige or dark green, with a name or initials.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 95, "today": 76, "choice": "Honeycomb pouch, bold weave — $76 ($95 on the website)"}], "option": {"label": "Color", "values": ["Blue", "Beige", "Dark Green"]}, "fringe": null, "threads": null, "letter": {"label": "Name or initials", "max": 12, "note": "A name (up to 12 letters) or up to three initials.", "optional": false}}, {"name": "Canvas backpack and pencil case", "desc": "Child size, in woven cotton canvas with striped straps, each embroidered with a name. Three colors.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 235, "today": 188, "choice": "Canvas backpack and pencil case — $188 ($235 on the website)"}], "option": {"label": "Color", "values": ["Sea Blue", "Emerald", "Fuchsia"]}, "fringe": null, "threads": null, "letter": {"label": "Name", "max": 12, "note": "Up to 12 letters, in print.", "optional": false}}, {"name": "Children's terry slippers", "desc": "Cotton terry, embroidered: fuchsia with a sky blue trim, or ecru with a hot-air balloon.", "note": "One size, about ages 5 to 7.", "label_of": "", "ages": false, "variants": [{"label": "", "list": 60, "today": 48, "choice": "Children's terry slippers — $48 ($60 on the website)"}], "option": {"label": "Version", "values": ["Fuchsia, Sky Blue Trim", "Ecru, Hot-Air Balloon"]}, "fringe": null, "threads": null, "letter": null}, {"name": "Basket with four washcloths", "desc": "Four cotton washcloths with a Gigliuccio hemstitch, in a basket, embroidered with a name.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 150, "today": 120, "choice": "Basket with four washcloths — $120 ($150 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": {"label": "Name", "max": 12, "note": "Up to 12 letters, embroidered in cursive.", "optional": false}}], "tick": 1320889023, "details": 140732319}, {"title": "Beach & Pool", "pieces": [{"name": "Chevron linen robe", "desc": "Bordeaux and white chevron linen, hooded, with a shawl collar and tie belt. S, M, L.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 345, "today": 276, "choice": "Chevron linen robe — $276 ($345 on the website)"}], "option": {"label": "Size", "values": ["S", "M", "L"]}, "fringe": null, "threads": null, "letter": null}, {"name": "Striped linen kimono", "desc": "Pure linen, blue stripes on cream, with a sash. One size.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 325, "today": 260, "choice": "Striped linen kimono — $260 ($325 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": null}, {"name": "Honeycomb beach bag", "desc": "Striped cotton honeycomb lined in terry, eight colors, with initials or a name.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 230, "today": 184, "choice": "Honeycomb beach bag — $184 ($230 on the website)"}], "option": {"label": "Color", "values": ["Sea Blue", "Bottle Green", "Deep Teal", "Olive", "Forest Green", "Dusty Rose", "Bordeaux", "Brick"]}, "fringe": null, "threads": null, "letter": {"label": "Name or initials", "max": 12, "note": "A name (up to 12 letters) or up to three initials.", "optional": false}}, {"name": "Linen beach bag", "desc": "Washed striped linen, lined in cream cotton, with an inside pocket. Three versions.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 230, "today": 184, "choice": "Linen beach bag — $184 ($230 on the website)"}], "option": {"label": "Stripes", "values": ["Sage and Cream", "Sky Blue and Cream", "Sage and Amber"]}, "fringe": null, "threads": null, "letter": {"label": "Initial (optional)", "max": 1, "note": "One letter, or leave empty.", "optional": true}}, {"name": "Pezzotto hobo bag", "desc": "Pezzotto, the woven cotton of the Salento, with fringed bands smocked by our seamstress and an inside pocket. Five colors.", "note": "Made to order: four to six weeks.", "label_of": "", "ages": false, "variants": [{"label": "", "list": 320, "today": 256, "choice": "Pezzotto hobo bag — $256 ($320 on the website)"}], "option": {"label": "Bag", "values": ["Yellow", "Dusty Rose", "Tartan Blue", "Sage Green", "Bordeaux"]}, "fringe": {"label": "Fringe", "values": ["Yellow", "Dusty Rose", "Tartan Blue", "Sage Green", "Bordeaux"]}, "threads": null, "letter": null}, {"name": "Pezzotto weekender", "desc": "Pezzotto with fringed bands smocked by our seamstress, 21 × 13.5 × 12 in; choose the bag and the fringe colors.", "note": "Made to order: four to six weeks.", "label_of": "", "ages": false, "variants": [{"label": "", "list": 425, "today": 340, "choice": "Pezzotto weekender — $340 ($425 on the website)"}], "option": {"label": "Bag", "values": ["Yellow", "Dusty Rose", "Tartan Blue", "Sage Green", "Bordeaux"]}, "fringe": {"label": "Fringe and handles", "values": ["Yellow", "Dusty Rose", "Tartan Blue", "Sage Green", "Bordeaux"]}, "threads": null, "letter": null}, {"name": "Terry beach towel with yellow tassels", "desc": "Dusty blue terry with a yellow tufted fringe, 35 × 59 in.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 140, "today": 112, "choice": "Terry beach towel with yellow tassels — $112 ($140 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": null}, {"name": "Linen beach towel with red trim", "desc": "Washed striped linen with a tufted fringe, 35 × 59 in.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 165, "today": 132, "choice": "Linen beach towel with red trim — $132 ($165 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": null}, {"name": "Terry beach towel with linen border", "desc": "Cream terry bordered in striped linen, sage or sky blue, 35 × 59 in.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 170, "today": 136, "choice": "Terry beach towel with linen border — $136 ($170 on the website)"}], "option": {"label": "Border", "values": ["Sage and Cream", "Sky Blue and Cream"]}, "fringe": null, "threads": null, "letter": null}, {"name": "Terry backgammon towel", "desc": "Terracotta terry with the backgammon board in it, 35 × 59 in.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 180, "today": 144, "choice": "Terry backgammon towel — $144 ($180 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": null}, {"name": "Honeycomb beach towel", "desc": "Light striped cotton honeycomb with fringed ends, in eight colors.", "note": "", "label_of": "", "ages": false, "variants": [{"label": "", "list": 110, "today": 88, "choice": "Honeycomb beach towel — $88 ($110 on the website)"}], "option": {"label": "Color", "values": ["Sea Blue", "Bottle Green", "Deep Teal", "Olive", "Forest Green", "Dusty Rose", "Bordeaux", "Brick"]}, "fringe": null, "threads": null, "letter": {"label": "Name or initials (optional)", "max": 12, "note": "Optional, at the same price.", "optional": true}}], "tick": 1987558207, "details": 349702017}, {"title": "Casa", "pieces": [{"name": "Terry slippers", "desc": "Grown-up slippers in cotton terry, teal, embroidered. Italian size 44.", "note": "Other sizes on request.", "label_of": "", "ages": false, "variants": [{"label": "", "list": 65, "today": 52, "choice": "Terry slippers — $52 ($65 on the website)"}], "option": null, "fringe": null, "threads": null, "letter": null}], "tick": 1097298749, "details": 182895605}];
+const FORM = "https://docs.google.com/forms/d/e/1FAIpQLSf6afmWEgQC0zZOxdaYs4IRjNRhugKzKJygBINjJ5LoSqvUpA";
+const E = {"name": 1560734759, "phone": 628080443, "email": 1233769406, "pay": 1581042967, "notes": 1572506062};
+const usd = n => "$" + Math.round(n);
+let lines = [];           // {uid, s, p, v, qty, option, fringe, thread, letter}
+let uid = 0;
+
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function piece(s, p) { return DATA[s].pieces[p]; }
+function priceOf(ln) { return piece(ln.s, ln.p).variants[ln.v].today; }
+
+function render() {
+  const root = document.getElementById("sections"); root.innerHTML = "";
+  DATA.forEach((sec, s) => {
+    const sx = el("section"); sx.appendChild(el("h2", null, esc(sec.title)));
+    sec.pieces.forEach((pc, p) => {
+      const d = el("div", "piece");
+      const v0 = pc.variants[0], many = pc.variants.length > 1;
+      const lo = Math.min(...pc.variants.map(v => v.today)), lolist = Math.min(...pc.variants.map(v => v.list));
+      d.innerHTML = `<div class="nm">${esc(pc.name)}</div>
+        <div class="pr">${many ? "from " : ""}${usd(lo)}<small>website ${usd(lolist)}</small></div>
+        <div class="ds">${esc(pc.desc)}${pc.note ? " " + esc(pc.note) : ""}</div>
+        <button class="add" type="button" aria-label="Add ${esc(pc.name)}">Add</button>`;
+      d.querySelector(".add").onclick = () => { lines.push({uid: ++uid, s, p, v: 0, qty: 1, option: "", fringe: "", thread: "", letter: ""}); render(); focusLine(uid); };
+      const mine = lines.filter(l => l.s === s && l.p === p);
+      if (mine.length) {
+        const box = el("div", "lines");
+        mine.forEach(ln => box.appendChild(lineView(ln, pc)));
+        d.appendChild(box);
+      }
+      sx.appendChild(d);
+    });
+    root.appendChild(sx);
+  });
+  bar();
+}
+
+function lineView(ln, pc) {
+  const w = el("div", "ln"); w.dataset.uid = ln.uid;
+  const sum = el("div", "top", `<b>${esc(pc.name)}</b><span class="sum">${usd(priceOf(ln) * ln.qty)}</span>`);
+  w.appendChild(sum);
+  const ctl = el("div", "ctl");
+  // the variant: age, size, set or version, each with its own price
+  if (pc.variants.length > 1) {
+    const lab = el("label", null, `${esc(pc.label_of || "Version")}`);
+    const sel = el("select"); pc.variants.forEach((v, i) => { const o = new Option(`${v.label} — ${usd(v.today)}`, i); if (i === ln.v) o.selected = true; sel.add(o); });
+    sel.onchange = () => { ln.v = +sel.value; render(); };
+    lab.appendChild(sel); ctl.appendChild(lab);
+  }
+  if (pc.option) {
+    const lab = el("label", null, esc(pc.option.label));
+    if (pc.option.values.length) {
+      const sel = el("select"); sel.add(new Option("Choose…", "")); pc.option.values.forEach(v => { const o = new Option(v, v); if (v === ln.option) o.selected = true; sel.add(o); });
+      sel.onchange = () => { ln.option = sel.value; };
+      lab.appendChild(sel);
+    } else {
+      const inp = el("input"); inp.type = "text"; inp.value = ln.option; inp.placeholder = "Which one?"; inp.oninput = () => { ln.option = inp.value; };
+      lab.appendChild(inp);
+    }
+    ctl.appendChild(lab);
+  }
+  if (pc.fringe) {
+    const lab = el("label", null, esc(pc.fringe.label));
+    const sel = el("select"); sel.add(new Option("Choose…", "")); pc.fringe.values.forEach(v => { const o = new Option(v, v); if (v === ln.fringe) o.selected = true; sel.add(o); });
+    sel.onchange = () => { ln.fringe = sel.value; }; lab.appendChild(sel); ctl.appendChild(lab);
+  }
+  if (pc.threads) {
+    const lab = el("label", null, "Thread");
+    const sel = el("select"); sel.add(new Option("Choose…", "")); pc.threads.forEach(v => { const o = new Option(v, v); if (v === ln.thread) o.selected = true; sel.add(o); });
+    sel.onchange = () => { ln.thread = sel.value; }; lab.appendChild(sel); ctl.appendChild(lab);
+  }
+  if (pc.letter) {
+    const lab = el("label", pc.letter.max > 2 ? "full" : "", esc(pc.letter.label));
+    const inp = el("input"); inp.type = "text"; inp.maxLength = pc.letter.max; inp.value = ln.letter; inp.autocapitalize = "characters";
+    inp.placeholder = pc.letter.max === 1 ? "A" : pc.letter.max === 2 ? "AB" : "Name";
+    inp.oninput = () => { ln.letter = inp.value; };
+    lab.appendChild(inp); lab.appendChild(el("span", "hint", esc(pc.letter.note))); ctl.appendChild(lab);
+  }
+  const q = el("label", null, "How many");
+  const qty = el("div", "qty", `<button type="button" aria-label="One less">−</button><output>${ln.qty}</output><button type="button" aria-label="One more">+</button>`);
+  const [minus, plus] = qty.querySelectorAll("button");
+  minus.onclick = () => { if (ln.qty > 1) { ln.qty--; render(); } };
+  plus.onclick = () => { ln.qty++; render(); };
+  q.appendChild(qty); ctl.appendChild(q);
+  w.appendChild(ctl);
+  const rm = el("button", "rm", "Remove"); rm.type = "button"; rm.onclick = () => { lines = lines.filter(l => l.uid !== ln.uid); render(); };
+  w.appendChild(rm);
+  return w;
+}
+
+function focusLine(id) { const w = document.querySelector(`.ln[data-uid="${id}"]`); if (w) { w.scrollIntoView({block: "center", behavior: "smooth"}); const f = w.querySelector("select,input"); if (f) f.focus({preventScroll: true}); } }
+
+function total() { return lines.reduce((t, ln) => t + priceOf(ln) * ln.qty, 0); }
+function pieces() { return lines.reduce((t, ln) => t + ln.qty, 0); }
+function bar() {
+  const n = pieces();
+  document.getElementById("total").textContent = usd(total());
+  document.getElementById("count").textContent = n ? (n + (n === 1 ? " piece" : " pieces") + " chosen") : "Nothing chosen yet";
+  document.getElementById("review").disabled = !n;
+}
+
+function describe(ln) {
+  const pc = piece(ln.s, ln.p), v = pc.variants[ln.v]; const bits = [];
+  if (v.label) bits.push(v.label);
+  if (pc.option) bits.push(ln.option ? `${pc.option.label.toLowerCase()} ${ln.option}` : `${pc.option.label.toLowerCase()} not chosen`);
+  if (pc.fringe) bits.push(ln.fringe ? `${pc.fringe.label.toLowerCase()} ${ln.fringe}` : `${pc.fringe.label.toLowerCase()} not chosen`);
+  if (pc.threads) bits.push(ln.thread ? `thread ${ln.thread}` : "thread not chosen");
+  if (pc.letter) bits.push(ln.letter ? `${pc.letter.label.replace(/ \(.*\)/, "").toLowerCase()} “${ln.letter}”` : (pc.letter.optional ? "no letters" : "letters not given"));
+  return bits.join(", ");
+}
+
+function missing() {
+  const out = [];
+  lines.forEach(ln => {
+    const pc = piece(ln.s, ln.p);
+    if (pc.option && pc.option.values.length && !ln.option) out.push(`${pc.name}: ${pc.option.label.toLowerCase()}`);
+    if (pc.fringe && !ln.fringe) out.push(`${pc.name}: ${pc.fringe.label.toLowerCase()}`);
+    if (pc.threads && !ln.thread) out.push(`${pc.name}: thread`);
+    if (pc.letter && !pc.letter.optional && !ln.letter.trim()) out.push(`${pc.name}: ${pc.letter.label.toLowerCase()}`);
+  });
+  return out;
+}
+
+function recap() {
+  const r = document.getElementById("recap"); r.innerHTML = "";
+  lines.forEach(ln => {
+    const pc = piece(ln.s, ln.p);
+    r.appendChild(el("div", "r", `<span>${ln.qty} × ${esc(pc.name)}<small>${esc(describe(ln))}</small></span><span>${usd(priceOf(ln) * ln.qty)}</span>`));
+  });
+  r.appendChild(el("div", "r t", `<span>Total, ${pieces()} ${pieces() === 1 ? "piece" : "pieces"}</span><span>${usd(total())}</span>`));
+  const miss = missing();
+  const e = document.getElementById("err");
+  if (miss.length) { e.hidden = false; e.textContent = "Still to choose: " + miss.join("; ") + ". You can send anyway and tell Diana later."; } else { e.hidden = true; }
+}
+
+document.getElementById("review").onclick = () => { recap(); document.getElementById("main").hidden = true; document.getElementById("bar").hidden = true; document.getElementById("panel").hidden = false; window.scrollTo(0, 0); };
+document.getElementById("back").onclick = () => { document.getElementById("panel").hidden = true; document.getElementById("main").hidden = false; document.getElementById("bar").hidden = false; };
+
+function body() {
+  const name = document.getElementById("name").value.trim(), phone = document.getElementById("phone").value.trim(), email = document.getElementById("email").value.trim();
+  const pay = (document.querySelector('input[name=pay]:checked') || {}).value || "";
+  const notes = document.getElementById("notes").value.trim();
+  const b = new URLSearchParams();
+  b.append("entry." + E.name, name); b.append("entry." + E.phone, phone); if (email) b.append("entry." + E.email, email);
+  DATA.forEach((sec, s) => {
+    const mine = lines.filter(l => l.s === s);
+    if (!mine.length) return;
+    const ticked = new Set(); const det = [];
+    mine.forEach(ln => {
+      const pc = piece(ln.s, ln.p), v = pc.variants[ln.v];
+      ticked.add(v.choice);
+      det.push(`${ln.qty} × ${pc.name}${v.label ? " · " + v.label : ""} — ${describe(ln)} — ${usd(v.today)} each, ${usd(v.today * ln.qty)}`);
+    });
+    ticked.forEach(c => b.append("entry." + sec.tick, c));
+    b.append("entry." + sec.details, det.join("\n"));
+  });
+  b.append("entry." + E.pay, pay);
+  b.append("entry." + E.notes, (notes ? notes + "\n\n" : "") + `Total ${usd(total())} for ${pieces()} ${pieces() === 1 ? "piece" : "pieces"}, sent from the Ducali order page.`);
+  b.append("fvv", "1"); b.append("pageHistory", "0,1,2"); b.append("fbzx", String(Date.now()));
+  return {b, name, phone, pay};
+}
+
+document.getElementById("form").onsubmit = async ev => {
+  ev.preventDefault();
+  const e = document.getElementById("err");
+  const {b, name, phone, pay} = body();
+  if (!name || !phone || !pay) { e.hidden = false; e.textContent = "We need your name, a phone or WhatsApp number, and how you would like to pay."; return; }
+  const btn = document.getElementById("send"); btn.disabled = true; btn.textContent = "Sending…";
+  try {
+    await fetch(FORM + "/formResponse", {method: "POST", mode: "no-cors", body: b, headers: {"Content-Type": "application/x-www-form-urlencoded"}});
+    document.getElementById("panel").hidden = true;
+    document.getElementById("thanks").hidden = false;
+    document.getElementById("thanks-h").textContent = "Thank you, " + name.split(" ")[0];
+    document.getElementById("thanks-sum").textContent = `${pieces()} ${pieces() === 1 ? "piece" : "pieces"}, ${usd(total())}, to be paid by ${pay.replace(", at the pop-up", " at the pop-up")}.`;
+    window.scrollTo(0, 0);
+  } catch (err) {
+    btn.disabled = false; btn.textContent = "Send my order";
+    e.hidden = false; e.textContent = "The order could not be sent (no connection?). Try again, or tell Diana at the table.";
+  }
+};
+
+render();
+</script>
+</body>
+</html>
