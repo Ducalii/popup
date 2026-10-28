@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ducali · Pop-up orders</title>
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#F8F5ED">
+<meta name="color-scheme" content="light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
@@ -15,8 +17,11 @@
   --ok:#3F6B4C; --ok-soft:#E3EEE5; --warn:#A5522B; --warn-soft:#F6E6DC; --field:#FFFFFF; --shade:#F1ECDF;
   --display:'Libre Baskerville',Baskerville,'Times New Roman',serif;
   --ui:'Alegreya Sans','Gill Sans','Helvetica Neue',system-ui,sans-serif;
+  color-scheme:light;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
+button,select,input,textarea,summary,a{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 html,body{margin:0}
 body{background:var(--bg);color:var(--fg);font-family:var(--ui);font-size:17px;line-height:1.4;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 120px}
@@ -35,19 +40,20 @@ section{margin-top:28px}
 section h2{font-size:14px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;font-family:var(--ui);font-weight:500;
   padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:6px}
 .piece{display:grid;grid-template-columns:auto 1fr auto;gap:4px 14px;padding:14px 0;border-bottom:1px solid var(--line);align-items:start}
+.piece>*{min-width:0}
 .piece img{width:76px;height:76px;object-fit:cover;border-radius:8px;background:var(--shade);grid-row:1/3}
 .piece .nm{font-family:var(--display);font-size:17px;line-height:1.25}
 .piece .ds{color:var(--muted);font-size:15px}
 .piece .pr{text-align:right;font-family:var(--display);font-size:18px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .sw{display:flex;flex-wrap:wrap;gap:8px;padding:2px 0}
-.chip{width:40px;height:40px;border-radius:50%;border:2px solid transparent;padding:0;background-size:cover;background-position:center;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.chip{width:44px;height:44px;border-radius:50%;border:2px solid transparent;padding:0;background-size:cover;background-position:center;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
 .chip.on{border-color:var(--fg);box-shadow:0 0 0 2px var(--card), inset 0 0 0 1px rgba(0,0,0,.12)}
 .chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .picked{font-size:15px;color:var(--fg);text-transform:none;letter-spacing:0;min-height:1.2em}
-.tiles{display:flex;flex-wrap:wrap;gap:8px;padding:2px 0}
-.tile{width:92px;border:2px solid transparent;border-radius:10px;padding:0;background:var(--card);cursor:pointer;text-align:center;font:13px var(--ui);color:var(--fg);text-transform:none;letter-spacing:0;overflow:hidden}
+.tiles{display:flex;flex-wrap:wrap;gap:8px;padding:2px 0;align-items:stretch}
+.tile{width:92px;display:flex;flex-direction:column;border:2px solid transparent;border-radius:10px;padding:0;background:var(--card);cursor:pointer;text-align:center;font:13px var(--ui);color:var(--fg);text-transform:none;letter-spacing:0;overflow:hidden}
 .tile img{display:block;width:92px;height:92px;object-fit:cover}
-.tile span{display:block;padding:4px 4px 6px;line-height:1.15}
+.tile span{display:block;flex:1;padding:4px 4px 6px;line-height:1.15}
 .tile.on{border-color:var(--fg)}
 .tile:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .piece .pr small{display:block;font-family:var(--ui);color:var(--muted);font-size:13px;margin-top:2px}
@@ -81,8 +87,8 @@ textarea{min-height:84px;resize:vertical}
 .btn{background:var(--fg);color:#fff;border:0;border-radius:999px;padding:12px 22px;font:500 16px var(--ui);cursor:pointer}
 .btn[disabled]{opacity:.45;cursor:default}
 .btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
-/* the review and send panel */
-.panel{position:fixed;inset:0;background:var(--bg);z-index:10;overflow:auto;padding:0 max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+/* the review and send panel: in the flow of the page, not a fixed layer (a phone's keyboard and its swipe-back misbehave in one) */
+.panel{padding-bottom:40px}
 .panel .wrap{padding-top:env(safe-area-inset-top,0px)}
 .panel h2{font-size:26px;margin:28px 0 6px}
 .panel .back{margin-top:18px}
@@ -104,7 +110,7 @@ textarea{min-height:84px;resize:vertical}
 .done p{color:var(--muted);max-width:30em;margin:14px auto 0}
 .small{font-size:14px;color:var(--muted);margin-top:14px}
 @media (max-width:420px){ .ln .ctl{grid-template-columns:1fr} .pay{grid-template-columns:1fr} }
-@media (prefers-reduced-motion:no-preference){ .ln{animation:in .18s ease-out} @keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}} }
+@media (prefers-reduced-motion:no-preference){ .ln.in{animation:in .18s ease-out} @keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}} }
 </style>
 </head>
 <body>
@@ -173,40 +179,66 @@ const CLOSES = new Date("2026-11-05T00:00:00-05:00");
 const CLOSED = false;
 const FORM = "https://docs.google.com/forms/d/e/1FAIpQLSf6afmWEgQC0zZOxdaYs4IRjNRhugKzKJygBINjJ5LoSqvUpA";
 const E = {"name": 1560734759, "phone": 628080443, "email": 1233769406, "pay": 1581042967, "notes": 1572506062};
+const KEY = "ducali-popup-2026-11-04";   // where the phone keeps an unsent order, so a reload does not lose it
+const FINE = matchMedia("(hover:hover) and (pointer:fine)").matches;   // a mouse: on a phone, focusing a field would open the keyboard
 const usd = n => "$" + Math.round(n);
 let lines = [];           // {uid, s, p, v, qty, option, fringe, thread, letter}
 let uid = 0;
+const cells = [];         // cells[s][p]: the piece's element, so a change redraws one piece, not the whole page
 
 function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function piece(s, p) { return DATA[s].pieces[p]; }
 function priceOf(ln) { return piece(ln.s, ln.p).variants[ln.v].today; }
 
+// the phone remembers an unsent order (a reload, a switch to another app, a closed tab) until it is sent
+function val(id) { return document.getElementById(id).value; }
+function who() { return {name: val("name"), phone: val("phone"), email: val("email"), notes: val("notes"), pay: (document.querySelector('input[name=pay]:checked') || {}).value || ""}; }
+function save() { try { localStorage.setItem(KEY, JSON.stringify({lines, who: who()})); } catch (e) {} }
+function forget() { try { localStorage.removeItem(KEY); } catch (e) {} }
+function restore() {
+  try {
+    const st = JSON.parse(localStorage.getItem(KEY) || "null"); if (!st) return;
+    lines = (st.lines || []).filter(ln => DATA[ln.s] && DATA[ln.s].pieces[ln.p] && DATA[ln.s].pieces[ln.p].variants[ln.v])
+                            .map(ln => Object.assign({option: "", fringe: "", thread: "", letter: ""}, ln, {uid: ++uid, qty: Math.max(1, ln.qty | 0)}));
+    const w = st.who || {};
+    ["name", "phone", "email", "notes"].forEach(k => { if (w[k]) document.getElementById(k).value = w[k]; });
+    if (w.pay) { const r = document.querySelector(`input[name=pay][value="${w.pay}"]`); if (r) r.checked = true; }
+  } catch (e) { lines = []; }
+}
+
 function render() {
-  const root = document.getElementById("sections"); root.innerHTML = "";
+  const root = document.getElementById("sections"); root.innerHTML = ""; cells.length = 0;
   DATA.forEach((sec, s) => {
     const sx = el("section"); sx.appendChild(el("h2", null, esc(sec.title)));
+    cells[s] = [];
     sec.pieces.forEach((pc, p) => {
-      const d = el("div", "piece");
-      const v0 = pc.variants[0], many = pc.variants.length > 1;
+      const d = el("div", "piece"); cells[s][p] = d;
+      const many = pc.variants.length > 1;
       const lo = Math.min(...pc.variants.map(v => v.today)), lolist = Math.min(...pc.variants.map(v => v.list));
       if (!pc.img) d.classList.add("noimg");
       d.innerHTML = `${pc.img ? `<img src="${pc.img}" alt="" loading="lazy">` : ""}<div class="nm">${esc(pc.name)}</div>
         <div class="pr">${many ? "from " : ""}${usd(lo)}<small>${pc.full ? "website price" : "website " + usd(lolist)}</small></div>
         <div class="ds">${esc(pc.desc)}${pc.note ? " " + esc(pc.note) : ""}${pc.site ? ` <a class="see" href="${pc.site}" target="_blank" rel="noopener">See it on ducali.it</a>` : ""}</div>
-        <button class="add" type="button" aria-label="Add ${esc(pc.name)}">Add</button>`;
-      d.querySelector(".add").onclick = () => { lines.push({uid: ++uid, s, p, v: 0, qty: 1, option: "", fringe: "", thread: "", letter: ""}); render(); focusLine(uid); };
-      const mine = lines.filter(l => l.s === s && l.p === p);
-      if (mine.length) {
-        const box = el("div", "lines");
-        mine.forEach(ln => box.appendChild(lineView(ln, pc)));
-        d.appendChild(box);
-      }
+        <button class="add" type="button" aria-label="Add ${esc(pc.name)}">Add</button><div class="lines" hidden></div>`;
+      d.querySelector(".add").onclick = () => { lines.push({uid: ++uid, s, p, v: 0, qty: 1, option: "", fringe: "", thread: "", letter: ""}); redraw(s, p, uid); };
+      redraw(s, p);
       sx.appendChild(d);
     });
     root.appendChild(sx);
   });
   bar();
+}
+
+// redraw one piece's lines and the bar; `fresh` is a line just added, which slides in and is scrolled to
+function redraw(s, p, fresh) {
+  const d = cells[s][p], pc = piece(s, p), box = d.querySelector(".lines");
+  box.innerHTML = "";
+  const mine = lines.filter(l => l.s === s && l.p === p);
+  mine.forEach(ln => { const w = lineView(ln, pc); if (ln.uid === fresh) w.classList.add("in"); box.appendChild(w); });
+  box.hidden = !mine.length;
+  bar(); save();
+  if (fresh) focusLine(fresh);
 }
 
 // the choosers, used by the variant, option, fringe and thread parts of a line
@@ -216,7 +248,7 @@ const chips = (label, values, pal, cur, set) => {       // a row of colour chips
   values.forEach(v => {
     const b = el("button", "chip" + (v === cur ? " on" : "")); b.type = "button"; b.title = v; b.setAttribute("aria-label", v);
     const sw = SW[pal][v]; if (sw.startsWith("#")) b.style.background = sw; else b.style.backgroundImage = `url(${sw})`;
-    b.onclick = () => { set(v); row.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.title === v)); lab.querySelector(".picked").textContent = v; };
+    b.onclick = () => { set(v); save(); row.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.title === v)); lab.querySelector(".picked").textContent = v; };
     row.appendChild(b);
   });
   lab.appendChild(row); return lab;
@@ -227,7 +259,7 @@ const tiles = (label, values, pics, cur, set, price) => {  // a row of little pi
   values.forEach((v, i) => {
     const b = el("button", "tile" + (v === cur ? " on" : "")); b.type = "button"; b.title = v;
     b.innerHTML = `<img src="${pics[v]}" alt="" loading="lazy"><span>${esc(v)}${price ? "<br>" + price(i) : ""}</span>`;
-    b.onclick = () => { set(v, i); row.querySelectorAll(".tile").forEach(c => c.classList.toggle("on", c.title === v)); };
+    b.onclick = () => { set(v, i); save(); row.querySelectorAll(".tile").forEach(c => c.classList.toggle("on", c.title === v)); };
     row.appendChild(b);
   });
   lab.appendChild(row); return lab;
@@ -241,11 +273,11 @@ function lineView(ln, pc) {
   // the variant: age, size, set or version, each with its own price
   if (pc.variants.length > 1 && pc.variants.every(v => pc.var_pics[v.label])) {
     ctl.appendChild(tiles(pc.label_of || "Version", pc.variants.map(v => v.label), pc.var_pics, pc.variants[ln.v].label,
-                          (v, i) => { ln.v = i; render(); }, i => usd(pc.variants[i].today)));
+                          (v, i) => { ln.v = i; redraw(ln.s, ln.p); }, i => usd(pc.variants[i].today)));
   } else if (pc.variants.length > 1) {
     const lab = el("label", null, `${esc(pc.label_of || "Version")}`);
     const sel = el("select"); pc.variants.forEach((v, i) => { const o = new Option(`${v.label} — ${usd(v.today)}`, i); if (i === ln.v) o.selected = true; sel.add(o); });
-    sel.onchange = () => { ln.v = +sel.value; render(); };
+    sel.onchange = () => { ln.v = +sel.value; redraw(ln.s, ln.p); };
     lab.appendChild(sel); ctl.appendChild(lab);
   }
   const hasSw = pal => pal && SW[pal] && Object.keys(SW[pal]).length;
@@ -257,10 +289,10 @@ function lineView(ln, pc) {
     const lab = el("label", null, esc(pc.option.label));
     if (pc.option.values.length) {
       const sel = el("select"); sel.add(new Option("Choose…", "")); pc.option.values.forEach(v => { const o = new Option(v, v); if (v === ln.option) o.selected = true; sel.add(o); });
-      sel.onchange = () => { ln.option = sel.value; };
+      sel.onchange = () => { ln.option = sel.value; save(); };
       lab.appendChild(sel);
     } else {
-      const inp = el("input"); inp.type = "text"; inp.value = ln.option; inp.placeholder = "Which one?"; inp.oninput = () => { ln.option = inp.value; };
+      const inp = el("input"); inp.type = "text"; inp.value = ln.option; inp.placeholder = "Which one?"; inp.oninput = () => { ln.option = inp.value; save(); };
       lab.appendChild(inp);
     }
     ctl.appendChild(lab);
@@ -272,35 +304,39 @@ function lineView(ln, pc) {
   } else if (pc.fringe) {
     const lab = el("label", null, esc(pc.fringe.label));
     const sel = el("select"); sel.add(new Option("Choose…", "")); pc.fringe.values.forEach(v => { const o = new Option(v, v); if (v === ln.fringe) o.selected = true; sel.add(o); });
-    sel.onchange = () => { ln.fringe = sel.value; }; lab.appendChild(sel); ctl.appendChild(lab);
+    sel.onchange = () => { ln.fringe = sel.value; save(); }; lab.appendChild(sel); ctl.appendChild(lab);
   }
   if (pc.threads && hasSw("thread") && pc.threads.every(v => SW.thread[v])) {
     ctl.appendChild(chips("Thread", pc.threads, "thread", ln.thread, v => { ln.thread = v; }));
   } else if (pc.threads) {
     const lab = el("label", null, "Thread");
     const sel = el("select"); sel.add(new Option("Choose…", "")); pc.threads.forEach(v => { const o = new Option(v, v); if (v === ln.thread) o.selected = true; sel.add(o); });
-    sel.onchange = () => { ln.thread = sel.value; }; lab.appendChild(sel); ctl.appendChild(lab);
+    sel.onchange = () => { ln.thread = sel.value; save(); }; lab.appendChild(sel); ctl.appendChild(lab);
   }
   if (pc.letter) {
     const lab = el("label", pc.letter.max > 2 ? "full" : "", esc(pc.letter.label));
     const inp = el("input"); inp.type = "text"; inp.maxLength = pc.letter.max; inp.value = ln.letter; inp.autocapitalize = "characters";
     inp.placeholder = pc.letter.max === 1 ? "A" : pc.letter.max === 2 ? "AB" : "Name";
-    inp.oninput = () => { ln.letter = inp.value; };
+    inp.oninput = () => { ln.letter = inp.value; save(); };
     lab.appendChild(inp); lab.appendChild(el("span", "hint", esc(pc.letter.note))); ctl.appendChild(lab);
   }
   const q = el("label", null, "How many");
   const qty = el("div", "qty", `<button type="button" aria-label="One less">−</button><output>${ln.qty}</output><button type="button" aria-label="One more">+</button>`);
   const [minus, plus] = qty.querySelectorAll("button");
-  minus.onclick = () => { if (ln.qty > 1) { ln.qty--; render(); } };
-  plus.onclick = () => { ln.qty++; render(); };
+  minus.onclick = () => { if (ln.qty > 1) { ln.qty--; redraw(ln.s, ln.p); } };
+  plus.onclick = () => { ln.qty++; redraw(ln.s, ln.p); };
   q.appendChild(qty); ctl.appendChild(q);
   w.appendChild(ctl);
-  const rm = el("button", "rm", "Remove"); rm.type = "button"; rm.onclick = () => { lines = lines.filter(l => l.uid !== ln.uid); render(); };
+  const rm = el("button", "rm", "Remove"); rm.type = "button"; rm.onclick = () => { lines = lines.filter(l => l.uid !== ln.uid); redraw(ln.s, ln.p); };
   w.appendChild(rm);
   return w;
 }
 
-function focusLine(id) { const w = document.querySelector(`.ln[data-uid="${id}"]`); if (w) { w.scrollIntoView({block: "center", behavior: "smooth"}); const f = w.querySelector("select,input"); if (f) f.focus({preventScroll: true}); } }
+function focusLine(id) {
+  const w = document.querySelector(`.ln[data-uid="${id}"]`); if (!w) return;
+  w.scrollIntoView({block: "center", behavior: "smooth"});
+  if (FINE) { const f = w.querySelector("select,input"); if (f) f.focus({preventScroll: true}); }   // never on a phone: the keyboard would jump up
+}
 
 function total() { return lines.reduce((t, ln) => t + priceOf(ln) * ln.qty, 0); }
 function pieces() { return lines.reduce((t, ln) => t + ln.qty, 0); }
@@ -345,8 +381,16 @@ function recap() {
   if (miss.length) { e.hidden = false; e.textContent = "Still to choose: " + miss.join("; ") + ". You can send anyway and tell Diana later."; } else { e.hidden = true; }
 }
 
-document.getElementById("review").onclick = () => { recap(); document.getElementById("main").hidden = true; document.getElementById("bar").hidden = true; document.getElementById("panel").hidden = false; window.scrollTo(0, 0); };
-document.getElementById("back").onclick = () => { document.getElementById("panel").hidden = true; document.getElementById("main").hidden = false; document.getElementById("bar").hidden = false; };
+// the review screen is a step in the phone's history, so its back button and the swipe-back gesture return to the pieces
+function showPanel(on) {
+  document.getElementById("main").hidden = on; document.getElementById("bar").hidden = on; document.getElementById("panel").hidden = !on;
+  window.scrollTo(0, 0);
+}
+document.getElementById("review").onclick = () => { recap(); showPanel(true); history.pushState({panel: 1}, ""); };
+document.getElementById("back").onclick = () => { if (history.state && history.state.panel) history.back(); else showPanel(false); };
+window.onpopstate = () => { if (!document.getElementById("panel").hidden) showPanel(false); };
+document.getElementById("form").oninput = save;
+document.getElementById("form").onchange = save;
 
 function body() {
   const name = document.getElementById("name").value.trim(), phone = document.getElementById("phone").value.trim(), email = document.getElementById("email").value.trim();
@@ -378,6 +422,7 @@ document.getElementById("form").onsubmit = async ev => {
   const btn = document.getElementById("send"); btn.disabled = true; btn.textContent = "Sending…";
   try {
     await fetch(FORM + "/formResponse", {method: "POST", mode: "no-cors", body: b, headers: {"Content-Type": "application/x-www-form-urlencoded"}});
+    forget(); lines = [];
     document.getElementById("panel").hidden = true;
     document.getElementById("thanks").hidden = false;
     document.getElementById("thanks-h").textContent = "Thank you, " + name.split(" ")[0];
@@ -394,6 +439,7 @@ if (CLOSED || new Date() >= CLOSES) {
   document.getElementById("closed").hidden = false;
   setTimeout(() => { location.href = "https://ducali.it"; }, 6000);
 } else {
+  restore();
   render();
 }
 </script>
