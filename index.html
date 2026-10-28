@@ -27,10 +27,10 @@ body{background:var(--bg);color:var(--fg);font-family:var(--ui);font-size:17px;l
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 120px}
 .wrap{max-width:640px;margin:0 auto}
 h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance}
-header{text-align:center;padding:34px 0 18px}
+header{text-align:center;padding:26px 0 14px}
 header .brand{font-family:var(--display);font-size:38px;letter-spacing:.02em}
-header .lockup,.done .lockup{display:block;width:240px;max-width:72%;height:auto;margin:0 auto}
-.done .lockup{width:200px}
+header .lockup,.done .lockup{display:block;width:150px;max-width:50%;height:auto;margin:0 auto}   /* small: it is read on a phone (Diana, 28 Oct) */
+.done .lockup{width:130px}
 header .eyebrow{color:var(--gold);font-size:13px;letter-spacing:.14em;text-transform:uppercase;margin-top:10px;font-weight:500}
 header p{color:var(--muted);margin:14px auto 0;max-width:34em;font-size:16px}
 /* "Good to know", at the foot of the page after the last piece (Diana, 28 Oct: "put this at the end of the page") */
@@ -139,7 +139,7 @@ textarea{min-height:84px;resize:vertical}
 <body>
 <div class="wrap" id="main">
   <header>
-    <img class="lockup" src="img/ducali.png" alt="Ducali" width="240" height="315">
+    <img class="lockup" src="img/ducali.png" alt="Ducali" width="150" height="197">
     <div class="eyebrow">Pop-up · November 4</div>
     <p>Friends &amp; family discounts on the pieces ordered at the pop-up.</p>
   </header>
