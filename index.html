@@ -94,6 +94,7 @@ textarea{min-height:84px;resize:vertical}
 .qty button{width:42px;height:40px;border:0;background:transparent;font:20px var(--ui);color:var(--fg);cursor:pointer}
 .qty output{flex:1;text-align:center;font-family:var(--display);font-size:17px}
 .rm{background:transparent;border:0;color:var(--warn);font:15px var(--ui);cursor:pointer;justify-self:start;padding:0}
+.more{justify-self:start;background:transparent;border:1px dashed var(--gold);border-radius:999px;padding:8px 14px;font:15px var(--ui);color:var(--fg);cursor:pointer}
 .hint{font-size:13px;color:var(--muted);text-transform:none;letter-spacing:0}
 .bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
   padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));z-index:5}
@@ -246,7 +247,11 @@ function render() {
         <div class="pr">${many ? "from " : ""}${usd(lo)}<small>${pc.full ? "website price" : "website " + usd(lolist)}</small></div>
         <div class="ds">${esc(pc.desc)}${pc.note ? " " + esc(pc.note) : ""}${pc.site ? ` <a class="see" href="${pc.site}" target="_blank" rel="noopener">See it on ducali.it</a>` : ""}</div>
         <button class="add" type="button" aria-label="Add ${esc(pc.name)}">Add</button><div class="lines" hidden></div>`;
-      d.querySelector(".add").onclick = () => { lines.push({uid: ++uid, s, p, v: 0, qty: 1, option: "", fringe: "", thread: "", letter: "", mixed: false, mix: {}, today: pc.here === true}); redraw(s, p, uid); };
+      d.querySelector(".add").onclick = () => {
+        // the first line of a piece on the table is taken home; a further line is an order (Diana, 28 Oct: "take one home, and order more or another colour")
+        const today = pc.here === true && !lines.some(l => l.s === s && l.p === p && l.today);
+        lines.push({uid: ++uid, s, p, v: 0, qty: 1, option: "", fringe: "", thread: "", letter: "", mixed: false, mix: {}, today}); redraw(s, p, uid);
+      };
       redraw(s, p);
       sx.appendChild(d);
     });
@@ -261,6 +266,10 @@ function redraw(s, p, fresh) {
   box.innerHTML = "";
   const mine = lines.filter(l => l.s === s && l.p === p);
   mine.forEach(ln => { const w = lineView(ln, pc); if (ln.uid === fresh) w.classList.add("in"); box.appendChild(w); });
+  if (mine.length) {   // under the lines, where the guest is looking: one more of the same piece, to order more or another colour
+    const m = el("button", "more", "+ Add another: to order more, or another colour"); m.type = "button";
+    m.onclick = () => d.querySelector(".add").click(); box.appendChild(m);
+  }
   box.hidden = !mine.length;
   bar(); save();
   if (fresh) focusLine(fresh);
