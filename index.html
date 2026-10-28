@@ -130,6 +130,8 @@ textarea{min-height:84px;resize:vertical}
 .done h2{font-size:30px}
 .done p{color:var(--muted);max-width:30em;margin:14px auto 0}
 .small{font-size:14px;color:var(--muted);margin-top:14px}
+.payto{font-size:15px;color:var(--fg);margin-top:8px}
+.payto b{font-weight:500;font-family:var(--display);font-size:15px;user-select:all;-webkit-user-select:all}   /* a tap selects the handle to copy */
 @media (max-width:420px){ .ln .ctl{grid-template-columns:1fr} .pay{grid-template-columns:1fr} }
 @media (prefers-reduced-motion:no-preference){ .ln.in{animation:in .18s ease-out} @keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}} }
 </style>
@@ -168,6 +170,7 @@ textarea{min-height:84px;resize:vertical}
             <label><input type="radio" name="pay" value="Cash, at the pop-up">Cash at the pop-up</label>
           </div>
           <div class="hint" style="margin-top:6px">What you take home today is paid at the pop-up. Pieces made to order are paid in full when ordered: Diana sends the payment request with her confirmation. Nothing is added: no tax, no fees.</div>
+          <div class="payto">Venmo <b>@diana-LopezyRoyo</b> &nbsp;·&nbsp; Zelle <b>305-336-6963</b>, Diana Lopez y Royo</div>
         </div>
         <label>Anything else?<textarea id="notes" placeholder="A question, a delivery wish, a gift note."></textarea></label>
         <div class="err" id="err" hidden></div>
@@ -190,6 +193,7 @@ textarea{min-height:84px;resize:vertical}
     <h2 id="thanks-h">Thank you</h2>
     <p>Diana will confirm your order, the delivery date and the payment within a day. Nothing is charged until she does.</p>
     <p class="small" id="thanks-sum"></p>
+    <p class="small payto">To pay: Venmo <b>@diana-LopezyRoyo</b> &nbsp;·&nbsp; Zelle <b>305-336-6963</b>, Diana Lopez y Royo. Cash at the pop-up is fine too.</p>
   </div>
 </div>
 <script>
