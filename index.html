@@ -33,9 +33,9 @@ header .lockup,.done .lockup{display:block;width:240px;max-width:72%;height:auto
 .done .lockup{width:200px}
 header .eyebrow{color:var(--gold);font-size:13px;letter-spacing:.14em;text-transform:uppercase;margin-top:10px;font-weight:500}
 header p{color:var(--muted);margin:14px auto 0;max-width:34em;font-size:16px}
-.notes{background:var(--shade);border-radius:10px;padding:12px 16px;margin:18px 0 6px;font-size:15px;color:var(--muted)}
-.notes summary{cursor:pointer;color:var(--fg);font-weight:500;list-style:none}
-.notes summary::-webkit-details-marker{display:none}
+/* "Good to know", at the foot of the page after the last piece (Diana, 28 Oct: "put this at the end of the page") */
+.notes{background:var(--shade);border-radius:10px;padding:14px 18px 12px;margin:34px 0 6px;font-size:15px;color:var(--muted)}
+.notes h2{border:0;margin:0;padding:0}
 .notes ul{margin:8px 0 0;padding-left:18px}
 .notes li{margin:4px 0}
 section{margin-top:28px}
@@ -142,9 +142,9 @@ textarea{min-height:84px;resize:vertical}
     <img class="lockup" src="img/ducali.png" alt="Ducali" width="240" height="315">
     <div class="eyebrow">Pop-up · November 4</div>
     <p>Friends &amp; family discounts on the pieces ordered at the pop-up.</p>
-    <details class="notes"><summary>Good to know</summary><ul><li>Made in Italy, one piece at a time, so no two are quite the same.</li><li>Where a piece offers an initial or a name, it is included in the price.</li><li>Pieces are made to order and paid in full when ordered. We confirm the delivery date with each order.</li><li>A piece embroidered with a name or an initial cannot be returned.</li><li>Prices in US dollars. Nothing is added at the table today.</li></ul></details>
   </header>
   <div id="sections"></div>
+  <section class="notes"><h2>Good to know</h2><ul><li>Made in Italy, one piece at a time, so no two are quite the same.</li><li>Where a piece offers an initial or a name, it is included in the price.</li><li>Pieces are made to order and paid in full when ordered. We confirm the delivery date with each order.</li><li>A piece embroidered with a name or an initial cannot be returned.</li><li>Prices in US dollars. Nothing is added at the table today.</li></ul></section>
 </div>
 <div class="bar" id="bar">
   <div class="in">
