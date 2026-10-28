@@ -209,6 +209,30 @@ function render() {
   bar();
 }
 
+// the choosers, used by the variant, option, fringe and thread parts of a line
+const chips = (label, values, pal, cur, set) => {       // a row of colour chips, the chosen one ringed and named
+  const lab = el("label", "full", `${esc(label)} <span class="picked">${esc(cur || "")}</span>`);
+  const row = el("div", "sw");
+  values.forEach(v => {
+    const b = el("button", "chip" + (v === cur ? " on" : "")); b.type = "button"; b.title = v; b.setAttribute("aria-label", v);
+    const sw = SW[pal][v]; if (sw.startsWith("#")) b.style.background = sw; else b.style.backgroundImage = `url(${sw})`;
+    b.onclick = () => { set(v); row.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.title === v)); lab.querySelector(".picked").textContent = v; };
+    row.appendChild(b);
+  });
+  lab.appendChild(row); return lab;
+};
+const tiles = (label, values, pics, cur, set, price) => {  // a row of little pictures, one per choice, the chosen one framed
+  const lab = el("label", "full", esc(label));
+  const row = el("div", "tiles");
+  values.forEach((v, i) => {
+    const b = el("button", "tile" + (v === cur ? " on" : "")); b.type = "button"; b.title = v;
+    b.innerHTML = `<img src="${pics[v]}" alt="" loading="lazy"><span>${esc(v)}${price ? "<br>" + price(i) : ""}</span>`;
+    b.onclick = () => { set(v, i); row.querySelectorAll(".tile").forEach(c => c.classList.toggle("on", c.title === v)); };
+    row.appendChild(b);
+  });
+  lab.appendChild(row); return lab;
+};
+
 function lineView(ln, pc) {
   const w = el("div", "ln"); w.dataset.uid = ln.uid;
   const sum = el("div", "top", `<b>${esc(pc.name)}</b><span class="sum">${usd(priceOf(ln) * ln.qty)}</span>`);
@@ -224,28 +248,6 @@ function lineView(ln, pc) {
     sel.onchange = () => { ln.v = +sel.value; render(); };
     lab.appendChild(sel); ctl.appendChild(lab);
   }
-  const chips = (label, values, pal, cur, set) => {       // a row of colour chips, the chosen one ringed and named
-    const lab = el("label", "full", `${esc(label)} <span class="picked">${esc(cur || "")}</span>`);
-    const row = el("div", "sw");
-    values.forEach(v => {
-      const b = el("button", "chip" + (v === cur ? " on" : "")); b.type = "button"; b.title = v; b.setAttribute("aria-label", v);
-      const sw = SW[pal][v]; if (sw.startsWith("#")) b.style.background = sw; else b.style.backgroundImage = `url(${sw})`;
-      b.onclick = () => { set(v); row.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.title === v)); lab.querySelector(".picked").textContent = v; };
-      row.appendChild(b);
-    });
-    lab.appendChild(row); return lab;
-  };
-  const tiles = (label, values, pics, cur, set, price) => {  // a row of little pictures, one per choice, the chosen one framed
-    const lab = el("label", "full", esc(label));
-    const row = el("div", "tiles");
-    values.forEach((v, i) => {
-      const b = el("button", "tile" + (v === cur ? " on" : "")); b.type = "button"; b.title = v;
-      b.innerHTML = `<img src="${pics[v]}" alt="" loading="lazy"><span>${esc(v)}${price ? "<br>" + price(i) : ""}</span>`;
-      b.onclick = () => { set(v, i); row.querySelectorAll(".tile").forEach(c => c.classList.toggle("on", c.title === v)); };
-      row.appendChild(b);
-    });
-    lab.appendChild(row); return lab;
-  };
   const hasSw = pal => pal && SW[pal] && Object.keys(SW[pal]).length;
   if (pc.option && pc.option.values.length && pc.option.values.every(v => pc.opt_pics[v])) {
     ctl.appendChild(tiles(pc.option.label, pc.option.values, pc.opt_pics, ln.option, v => { ln.option = v; }));
